@@ -12,6 +12,11 @@
 // @supportURL  https://github.com/noplanman/DiasPlus/issues
 // ==/UserScript==
 
+/**
+ * Be sure to update '@include' on line 5 above to match your Diaspora* pod!
+ * Simply replace 'diasp.eu' with your pod domain :-)
+ */
+
 // If jQuery is available, run everything as soon as the DOM is set up.
 if ( 'jQuery' in window ) jQuery( document ).ready(function( $ ) {
 

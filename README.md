@@ -10,7 +10,7 @@ Diaspora\* script that adds tweaks to the website.
 
 ##Installation
 
-DiasPlus can be installed on a **PC with Windows**, or a **Mac with OSX**.
+DiasPlus can be installed on a **PC**, or a **Mac**.
 Simply choose the plugin that corresponds to your web browser below and download the script, as easy as that!
 
 ###With Plugin

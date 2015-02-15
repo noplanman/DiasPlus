@@ -3,7 +3,7 @@
 // @namespace   diasplus
 // @description Userscript that adds tweaks to Diaspora*.
 // @include     https://*diasp.eu*
-// @version     1.0
+// @version     1.1
 // @copyright   2015 Armando Lüscher
 // @author      Armando Lüscher
 // @oujs:author noplanman
@@ -35,6 +35,81 @@ if ( 'jQuery' in window ) jQuery( document ).ready(function( $ ) {
     if ( navHref === location.href.substring( location.href.length - navHref.length ) ) {
       $( this ).addClass( 'dplus-active' );
     }
+  });
+
+
+
+  // Time when the mouse button was pressed, or false if not pressed.
+  var md = false;
+
+  /**
+   * Check if the passed character is not a space or new line character.
+   * @param  {string}  c The character to check.
+   * @return {Boolean}   True if not a space or new line, else False.
+   */
+  var isValidChar = function( c ) {
+    return ( undefined !== c && ! /\s/.test( c ) );
+  };
+
+  /**
+   * Convert the currently selected word of the passed text area a tag.
+   * @param  {jQuery} $textArea The text area to be handled.
+   */
+  var makeTag = function( $textArea ) {
+    try {
+      // Mouse has been released early.
+      if ( ! md ) return;
+
+      // Mouse button down long enough? Loop with timeouts until yes.
+      if ( md + 500 > Date.now() ) {
+        setTimeout( function() { makeTag( $textArea ); }, 50 );
+      } else if ( $textArea instanceof jQuery && $textArea.is( 'textarea' ) ) {
+        // Make sure we have been passed a text area.
+        var textAreaText = $textArea.val();
+        var cPos1 = $textArea[0].selectionStart;
+        var cPos2 = $textArea[0].selectionEnd;
+
+        // Only if there is no selection.
+        if ( cPos1 === cPos2 ) {
+
+          // Search for the word end backwards.
+          while ( --cPos1 >= 0 && isValidChar( textAreaText[ cPos1 ] ) );
+          cPos1++;
+
+          // Let's handle the tag.
+          if ( isValidChar( textAreaText[ cPos1 ] ) ) {
+            if ( textAreaText[ cPos1 ] === '#' ) {
+              // Looks like we're removing the tag.
+              if ( isValidChar( textAreaText[ cPos1 + 1 ] ) && textAreaText[ cPos1 + 1 ] !== '#' ) {
+                $textArea.val( textAreaText.substring( 0, cPos1 ) + textAreaText.substring( cPos1 + 1 ) );
+                // If we're removing the tag from the left, compensate for the # character.
+                ( textAreaText[ cPos2 ] === '#' ) || cPos2--;
+              }
+            } else {
+              // Looks like we're adding the tag.
+              $textArea.val( textAreaText.substring( 0, cPos1 ) + '#' + textAreaText.substring( cPos1 ) );
+              cPos2++;
+            }
+            // Set new caret positions.
+            $textArea[0].selectionStart = $textArea[0].selectionEnd = cPos2;
+          }
+        }
+        md = false;
+      }
+    } catch ( e ) {
+      doLog( 'Error while making tag.', 'e', false, e );
+      md = false;
+    }
+  };
+
+  // MouseDown and MouseUp actions for the post entry field.
+  $( '#status_message_fake_text' )
+  .mousedown(function() {
+    md = Date.now();
+    makeTag( $( this ) );
+  })
+  .mouseup(function() {
+    md = false;
   });
 
   /**

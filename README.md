@@ -3,7 +3,7 @@
 Diaspora\* script that adds tweaks to the website.
 
 - Author: [Armando Lüscher](https://diasp.eu/people/c2d5d7b0852901324e075404a6b20780)
-- Version: 1.0 ([changelog](https://github.com/noplanman/DiasPlus/blob/master/CHANGELOG.md))
+- Version: 1.1 ([changelog](https://github.com/noplanman/DiasPlus/blob/master/CHANGELOG.md))
 - Short-Link for sharing: https://j.mp/DiasPlus
 
 ---
@@ -36,3 +36,11 @@ Adds **Liked** and **Commented** links to the header navigation for easier acces
 The background of the selected link gets coloured.
 
 ![Additional header links](https://github.com/noplanman/DiasPlus/raw/master/assets/header.png)
+
+###Long-Click-Tags
+
+Easily convert certain words to tags in the text entry field when writing a new post.
+If a word is already a tag, convert it back into a normal word.
+Simply move the mouse over a word that should be converted into a tag and hold down the mouse button. After half a second the word will be converted into a tag.
+
+Example when long-clicking the word "Tag": `Make me a Tag.` *becomes* `Make me a #Tag.`

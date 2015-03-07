@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name        DiasPlus
 // @namespace   diasplus
-// @description Userscript that adds tweaks to Diaspora*.
-// @include     https://*diasp.eu*
-// @version     1.1
+// @description Userscript that adds tweaks to diaspora*.
+// @include     *
+// @version     1.2
 // @copyright   2015 Armando Lüscher
 // @author      Armando Lüscher
 // @oujs:author noplanman
@@ -12,13 +12,66 @@
 // @supportURL  https://github.com/noplanman/DiasPlus/issues
 // ==/UserScript==
 
-/**
- * Be sure to update '@include' on line 5 above to match your Diaspora* pod!
- * Simply replace 'diasp.eu' with your pod domain :-)
- */
+// If we're on a diaspora* pod and jQuery is available, run everything as soon as the DOM is set up.
+if ( ( 'Diaspora' in window ) && ( 'jQuery' in window ) ) jQuery( document ).ready(function( $ ) {
 
-// If jQuery is available, run everything as soon as the DOM is set up.
-if ( 'jQuery' in window ) jQuery( document ).ready(function( $ ) {
+  /**
+   * BE SURE TO ENTER YOUR CUSTOM POD DOMAIN HERE!!!
+   *
+   * secure: True => https, False => http
+   * domain: Enter just your pod domain. (e.g. joindiaspora.com, diasp.eu)
+   */
+  var MyDiasPlus = {
+    secure: true,
+    domain: ''
+  };
+
+  // If we are not logged into this pod, it must be a foreign one.
+  if ( ! ( 'user' in gon ) && location.hostname !== MyDiasPlus.domain ) {
+    var $button = $('<a target="_self">Open on my pod</a>')
+    .css({
+      backgroundColor: 'rgb(0,222,0)',
+      padding: '3px 9px',
+      marginLeft: '10px',
+      border: '1px solid rgb(0,111,0)',
+      borderRadius: '5px',
+      color: 'rgb(0,111,0)',
+      float: 'left',
+      cursor: 'pointer'
+    });
+
+    var addButton = true;
+    if ( '' === MyDiasPlus.domain ) {
+      $button.click(function(){
+        alert('Your pod has not been defined yet!\n\nBe sure to configure it in the user script directly.\n\nMore info at: https://j.mp/DiasPlus');
+      });
+    } else {
+      var url = 'http' + ( MyDiasPlus.secure ? 's' : '' ) + '://' + MyDiasPlus.domain;
+      switch ( Diaspora.Page ) {
+        case 'PostsShow' :
+          url += '/posts/' + gon.post.guid;
+          break;
+        case 'PeopleShow' :
+          var url2 = $('.profile_photo a').attr('href');
+          // Remove '/photos' from the end of the URL.
+          url += url2.substring(0,url2.length-7);
+          break;
+        case 'TagsShow' :
+          url += '/' + Backbone.history.fragment;
+          break;
+        default :
+          addButton = false;
+      }
+
+      $button.attr( 'href', url )
+    }
+
+    if ( addButton ) {
+      $button.prependTo( $('header') );
+    }
+
+    return;
+  }
 
   // Add CSS styles.
   addCSS();

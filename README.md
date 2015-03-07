@@ -1,9 +1,9 @@
 # DiasPlus
 
-Diaspora\* script that adds tweaks to the website.
+diaspora\* script that adds tweaks to the website.
 
 - Author: [Armando Lüscher](https://diasp.eu/people/c2d5d7b0852901324e075404a6b20780)
-- Version: 1.1 ([changelog](https://github.com/noplanman/DiasPlus/blob/master/CHANGELOG.md))
+- Version: 1.2 ([changelog](https://github.com/noplanman/DiasPlus/blob/master/CHANGELOG.md))
 - Short-Link for sharing: https://j.mp/DiasPlus
 
 ---
@@ -25,7 +25,9 @@ Simply choose the plugin that corresponds to your web browser below and download
   - [Get it on GreasyFork](https://greasyfork.org/en/scripts/7789-diasplus/code/DiasPlus.user.js)
 
 3. Add your pod
-  - Be sure to update '@include' on line 5 of the script to match your Diaspora* pod!
+  - Be sure to update the `MyDiasPlus` variable on line 24 of the script to match your diaspora\* pod!
+
+    (e.g. If you are on the `diasp.eu` pod, simply change the domain to `'diasp.eu'`)
   - (When your script gets auto-updated, this change will have to be made again. I'm working on a solution for this ;-))
 
 ##Details
@@ -44,3 +46,10 @@ If a word is already a tag, convert it back into a normal word.
 Simply move the mouse over a word that should be converted into a tag and hold down the mouse button. After half a second the word will be converted into a tag.
 
 Example when long-clicking the word "Tag": `Make me a Tag.` *becomes* `Make me a #Tag.`
+
+###Open on my pod
+
+When directly viewing a user or post from a different pod, there is no easy way of opening the page on your own pod.
+This feature helps out with that, by adding a button at the top left, needing only 1 click to open it on your pod.
+
+![Open on my pod](https://github.com/noplanman/DiasPlus/raw/master/assets/open-on-my-pod.png)

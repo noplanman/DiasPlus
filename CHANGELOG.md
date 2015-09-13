@@ -1,5 +1,9 @@
 #Change Log
 
+##Version 1.2
+
+- Added button to open users and posts on your own pod.
+
 ##Version 1.1
 
 - Added Long-Click-Tags to the post entry field.

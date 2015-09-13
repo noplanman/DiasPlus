@@ -16,18 +16,69 @@
 // ==/UserScript==
 
 var DiasPlus = {};
+DiasPlus.secure = true;
+DiasPlus.domain = '';
 
-DiasPlus.addOpenPodButton = function () {
+/**
+ * Get the pod URL (protocol + domain).
+ * @return {string} The pod URL.
+ */
+DiasPlus.getPodURL = function () {
+  return 'http' + (DiasPlus.secure ? 's' : '') + '://' + DiasPlus.domain;
+};
+
+/**
+ * Get the pod info from the GM settings.
+ */
+DiasPlus.loadPodInfo = function () {
+  var podURL = GM_getValue('dplus-pod-url', '');
+  DiasPlus.setPodInfo(podURL);
+};
+
+/**
+ * Set the pod info and save it to the DiasPlus object and the GM settings.
+ * @param {string} podURL Pod URL to save.
+ */
+DiasPlus.setPodInfo = function (podURL) {
+  DiasPlus.secure = true;
+  DiasPlus.domain = '';
+  var info = podURL.split('://');
+  if (info.length === 2) {
+    DiasPlus.secure = (info[0] === 'https');
+    DiasPlus.domain = info[1];
+  }
+  GM_setValue('dplus-pod-url', DiasPlus.getPodURL());
+};
+
+/**
+ * Add the "Open on my pod" and settings buttons.
+ */
+DiasPlus.addOOMPButton = function () {
+  // Remove the existing button if it already exists.
+  $('.dplus-oomp, .dplus-oomp-settings').remove();
+
+  // Add settings button.
+  var $settingsButton = $('<i class="dplus-oomp-settings entypo cog" title="D+ Settings"></i>')
+  .click(function(event) {
+    var p = prompt('Modify your pod URL (eg. https://diasp.eu)', DiasPlus.getPodURL());
+    DiasPlus.setPodInfo(p);
+    DiasPlus.addOOMPButton();
+  })
+  .prependTo('header');
+
   // If we are not logged into this pod, it must be a foreign one.
   if (!('user' in gon) && location.hostname !== DiasPlus.domain ) {
-    var $button = $('<a class="dplus-open-on-my-pod" target="_self">Open on my pod</a>');
+    var $button = $('<a class="dplus-oomp" target="_self">Open on my pod</a>');
 
+    // Is this the first time we're setting the pod URL?
     if ('' === DiasPlus.domain) {
       $button.click(function() {
-        alert('Your pod has not been defined yet!\n\nBe sure to configure it in the user script settings.\n\nMore info at: https://j.mp/DiasPlus');
+        var p = prompt('Your pod has not been defined yet!\n\nEnter your pod domain (eg. https://diasp.eu)', DiasPlus.getPodURL());
+        DiasPlus.setPodInfo(p);
+        DiasPlus.addOOMPButton();
       });
     } else {
-      var url = 'http' + (DiasPlus.secure ? 's' : '') + '://' + DiasPlus.domain;
+      var url = DiasPlus.getPodURL();
 
       if ('post' in gon) {
         url += '/posts/' + gon.post.guid;
@@ -38,10 +89,13 @@ DiasPlus.addOpenPodButton = function () {
       $button.attr('href', url);
     }
 
-    $button.prependTo($('header'));
+    $button.prependTo('header');
   }
 };
 
+/**
+ * Load the JS gon object.
+ */
 DiasPlus.loadJSgon = function () {
   $('script').each(function() {
     if ($(this).text().search('window.gon={}') > -1) {
@@ -51,6 +105,9 @@ DiasPlus.loadJSgon = function () {
   });
 };
 
+/**
+ * Add the extra links to the toolbar.
+ */
 DiasPlus.addExtraToolbarLinks = function () {
   // Add the "Liked" and "Commented" links to the toolbar.
   var $headerNav = $( '.header-nav' ).append(
@@ -147,7 +204,6 @@ DiasPlus.makeTag = function ($textArea) {
   }
 };
 
-
 /**
  * Make a log entry.
  * @param {string}  logMessage Message to write to the log console.
@@ -175,7 +231,6 @@ DiasPlus.doLog = function (logMessage, level, alsoAlert, e) {
   }
 };
 
-
 /**
  * Start the party.
  */
@@ -188,21 +243,20 @@ DiasPlus.init = function () {
   // Add the global CSS rules.
   GM_addStyle(
     '.header-nav .dplus-active { background-color: rgba(255,255,255,.1); }' +
-    '.dplus-open-on-my-pod { background: #00de00 !important; padding: 3px 9px; margin-left: 10px; border: 1px solid #006f00; border-radius: 5px; color: #006f00; float: left; cursor: pointer; }'
+    '.dplus-oomp { background: #00de00 !important; padding: 3px 9px; margin-left: 10px; border: 1px solid #006f00; border-radius: 5px; color: #006f00; float: left; cursor: pointer; }' +
+    '.dplus-oomp-settings { float: left; color: #006f00; font-size: 20px; margin: 4px; cursor: pointer; }'
   );
+
+  // Load the pod infos from the GM settings.
+  DiasPlus.loadPodInfo();
 
   // Load the gon JS variable.
   DiasPlus.loadJSgon();
 
-  DiasPlus.secure = true;
-  DiasPlus.domain = GM_getValue('dplus-domain', null);
-  if (null === DiasPlus.domain) {
-    DiasPlus.domain = prompt('Diaspora* pod domain');
-    GM_setValue('dplus-domain', DiasPlus.domain);
-  }
+  // Load all the features.
   DiasPlus.initLongClickTags();
   DiasPlus.addExtraToolbarLinks();
-  DiasPlus.addOpenPodButton();
+  DiasPlus.addOOMPButton();
 };
 
 // source: https://muffinresearch.co.uk/does-settimeout-solve-the-domcontentloaded-problem/

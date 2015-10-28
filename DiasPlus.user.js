@@ -156,6 +156,23 @@ DiasPlus.addExtraToolbarLinks = function () {
   });
 };
 
+/**
+ * Add button that reverses the order of conversation messages.
+ */
+DiasPlus.addMessageSortingButton = function() {
+  if ($('body').hasClass('page-conversations')) {
+    var revMessages = function() {
+      $('<a title="Reverse message order"><i class="entypo switch"></i></a>')
+      .click(function() {
+        $('#conversation_show .stream').html($('#conversation_show .stream_element').get().reverse());
+      })
+      .prependTo('.control-icons');
+    };
+    revMessages();
+    DiasPlus.Observer.add('#conversation_show', revMessages);
+  }
+};
+
 // Time when the mouse button was pressed, or false if not pressed.
 var md = false;
 
@@ -276,7 +293,8 @@ DiasPlus.init = function () {
   GM_addStyle(
     '.header-nav .dplus-active { background-color: rgba(255,255,255,.1); }' +
     '.dplus-oomp { background: #00de00 !important; padding: 3px 9px; margin-left: 10px; border: 1px solid #006f00; border-radius: 5px; color: #006f00; float: left; cursor: pointer; }' +
-    '.dplus-oomp-settings { float: left; color: #006f00; font-size: 20px; margin: 4px; cursor: pointer; }'
+    '.dplus-oomp-settings { float: left; color: #006f00; font-size: 20px; margin: 4px; cursor: pointer; }' +
+    '.page-conversations .control-icons a { cursor: pointer; display: inline-block !important; }'
   );
 
   // Load the pod infos from the GM settings.
@@ -289,6 +307,7 @@ DiasPlus.init = function () {
   DiasPlus.initLongClickTags();
   DiasPlus.addExtraToolbarLinks();
   DiasPlus.addOOMPButton();
+  DiasPlus.addMessageSortingButton();
 };
 
 // source: https://muffinresearch.co.uk/does-settimeout-solve-the-domcontentloaded-problem/

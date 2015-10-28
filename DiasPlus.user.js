@@ -28,6 +28,38 @@ DiasPlus.getPodURL = function () {
 };
 
 /**
+ * The MutationObserver to detect page changes.
+ */
+DiasPlus.Observer = {
+
+  // The mutation observer objects.
+  observers : [],
+
+  /**
+   * Add an observer to observe for DOM changes.
+   *
+   * @param {string}   queryToObserve Query string of elements to observe.
+   * @param {function} cb             Callback function for the observer.
+   */
+  add : function(queryToObserve, cb) {
+
+    // Check if we can use the MutationObserver.
+    if ('MutationObserver' in window) {
+      var toObserve = document.querySelector(queryToObserve);
+      if (toObserve) {
+        var mo = new MutationObserver(cb);
+        DiasPlus.Observer.observers.push(mo);
+
+        // Observe child changes.
+        mo.observe(toObserve, {
+          childList: true
+        });
+      }
+    }
+  }
+};
+
+/**
  * Get the pod info from the GM settings.
  */
 DiasPlus.loadPodInfo = function () {

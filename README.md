@@ -3,7 +3,7 @@
 diaspora\* script that adds tweaks to the website.
 
 - Author: [Armando Lüscher](https://diasp.eu/people/c2d5d7b0852901324e075404a6b20780)
-- Version: 1.2 ([changelog](https://github.com/noplanman/DiasPlus/blob/master/CHANGELOG.md))
+- Version: 1.3 ([changelog](https://github.com/noplanman/DiasPlus/blob/master/CHANGELOG.md))
 - Short-Link for sharing: https://j.mp/DiasPlus
 
 ---

@@ -54,3 +54,11 @@ For this feature to work, you will need to set your pod URL first. The input fie
 NOTE: On your own pod, you will not see the button, only the cog to change the saved pod URL.
 
 ![Open on my pod](https://github.com/noplanman/DiasPlus/raw/master/assets/open-on-my-pod.png)
+
+###Reverse order of conversation messages
+
+When you're on the conversations page, you can reverse the order of the messages, to have the newest ones on top. This helps so you don't have to scroll to the bottom all the time.
+
+Just click the new button that appears on the top right, when you're on the conversations page!
+
+![Reverse order of conversation messages](https://github.com/noplanman/DiasPlus/raw/master/assets/reverse-order-of-conversation-messages.png)

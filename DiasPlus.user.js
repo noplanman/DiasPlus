@@ -3,7 +3,7 @@
 // @namespace   diasplus
 // @description Userscript that adds tweaks to diaspora*.
 // @include     *
-// @version     1.2
+// @version     1.3
 // @copyright   2015 Armando Lüscher
 // @author      Armando Lüscher
 // @oujs:author noplanman
@@ -162,7 +162,7 @@ DiasPlus.addExtraToolbarLinks = function () {
 DiasPlus.addMessageSortingButton = function() {
   if ($('body').hasClass('page-conversations')) {
     var revMessages = function() {
-      $('<a title="Reverse message order"><i class="entypo switch"></i></a>')
+      $('<a class="dplus-reverse-messages" title="Reverse message order"><i class="entypo switch"></i></a>')
       .click(function() {
         $('#conversation_show .stream').html($('#conversation_show .stream_element').get().reverse());
       })
@@ -294,7 +294,8 @@ DiasPlus.init = function () {
     '.header-nav .dplus-active { background-color: rgba(255,255,255,.1); }' +
     '.dplus-oomp { background: #00de00 !important; padding: 3px 9px; margin-left: 10px; border: 1px solid #006f00; border-radius: 5px; color: #006f00; float: left; cursor: pointer; }' +
     '.dplus-oomp-settings { float: left; color: #006f00; font-size: 20px; margin: 4px; cursor: pointer; }' +
-    '.page-conversations .control-icons a { cursor: pointer; display: inline-block !important; }'
+    '.page-conversations .control-icons a { cursor: pointer; display: inline-block !important; }' +
+    '.page-conversations .control-icons a i.entypo { font-size: 20px; }'
   );
 
   // Load the pod infos from the GM settings.

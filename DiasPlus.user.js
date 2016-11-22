@@ -134,14 +134,14 @@ DiasPlus.addExtraToolbarLinks = function () {
 DiasPlus.addMessageSortingButton = function () {
   if ($('body').hasClass('page-conversations')) {
     var revMessages = function () {
-      $('<a class="dplus-reverse-messages" title="Reverse message order"><i class="entypo switch"></i></a>')
+      $('<a class="dplus-reverse-messages" title="Reverse message order"><i class="entypo-switch"></i></a>')
         .click(function () {
-          $('#conversation_show .stream').html($('#conversation_show .stream_element').get().reverse());
+          $('#conversation-show .stream').html($('#conversation-show .stream-element').get().reverse());
         })
         .prependTo('.control-icons');
     };
     revMessages();
-    DiasPlus.Observer.add('#conversation_show', revMessages);
+    DiasPlus.Observer.add('#conversation-show', revMessages);
   }
 };
 

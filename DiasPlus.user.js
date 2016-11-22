@@ -3,155 +3,127 @@
 // @namespace   diasplus
 // @description Userscript that adds tweaks to diaspora*.
 // @include     *
-// @version     1.3
-// @copyright   2015 Armando Lüscher
+// @version     2.0.0
+// @copyright   2016 Armando Lüscher
 // @author      Armando Lüscher
 // @oujs:author noplanman
 // @grant       GM_addStyle
 // @grant       GM_getValue
 // @grant       GM_setValue
-// @require     https://code.jquery.com/jquery-1.11.3.min.js
+// @grant       window
+// @require     https://code.jquery.com/jquery-3.1.1.slim.min.js
 // @homepageURL https://github.com/noplanman/DiasPlus
 // @supportURL  https://github.com/noplanman/DiasPlus/issues
 // ==/UserScript==
 
+// Make sure we're on a diaspora* pod.
+if (typeof unsafeWindow.Diaspora === 'undefined') {
+  throw 'Not a diaspora* pod, move along...';
+}
+
 var DiasPlus = {};
+DiasPlus.gon = unsafeWindow.gon;
 DiasPlus.secure = true;
 DiasPlus.domain = '';
 
 /**
  * Get the pod URL (protocol + domain).
+ *
  * @return {string} The pod URL.
  */
 DiasPlus.getPodURL = function () {
   return 'http' + (DiasPlus.secure ? 's' : '') + '://' + DiasPlus.domain;
 };
 
-/**
- * The MutationObserver to detect page changes.
- */
-DiasPlus.Observer = {
-
-  // The mutation observer objects.
-  observers : [],
-
-  /**
-   * Add an observer to observe for DOM changes.
-   *
-   * @param {string}   queryToObserve Query string of elements to observe.
-   * @param {function} cb             Callback function for the observer.
-   */
-  add : function(queryToObserve, cb) {
-
-    // Check if we can use the MutationObserver.
-    if ('MutationObserver' in window) {
-      var toObserve = document.querySelector(queryToObserve);
-      if (toObserve) {
-        var mo = new MutationObserver(cb);
-        DiasPlus.Observer.observers.push(mo);
-
-        // Observe child changes.
-        mo.observe(toObserve, {
-          childList: true
-        });
-      }
-    }
-  }
-};
 
 /**
  * Get the pod info from the GM settings.
  */
 DiasPlus.loadPodInfo = function () {
-  var podURL = GM_getValue('dplus-pod-url', '');
-  DiasPlus.setPodInfo(podURL);
+  DiasPlus.setPodInfo(GM_getValue('dplus-pod-url', ''));
 };
 
 /**
  * Set the pod info and save it to the DiasPlus object and the GM settings.
+ *
  * @param {string} podURL Pod URL to save.
+ *
+ * @return {boolean}
  */
 DiasPlus.setPodInfo = function (podURL) {
-  DiasPlus.secure = true;
-  DiasPlus.domain = '';
   var info = podURL.split('://');
   if (info.length === 2) {
-    DiasPlus.secure = (info[0] === 'https');
+    DiasPlus.secure = info[0] === 'https';
     DiasPlus.domain = info[1];
+    GM_setValue('dplus-pod-url', DiasPlus.getPodURL());
+
+    return true
   }
-  GM_setValue('dplus-pod-url', DiasPlus.getPodURL());
+
+  return false;
 };
 
 /**
- * Add the "Open on my pod" and settings buttons.
+ * Add the settings button to the top right navbar.
  */
-DiasPlus.addOOMPButton = function () {
-  // Remove the existing button if it already exists.
-  $('.dplus-oomp, .dplus-oomp-settings').remove();
-
+DiasPlus.addSettingsButton = function () {
   // Add settings button.
-  var $settingsButton = $('<i class="dplus-oomp-settings entypo cog" title="D+ Settings"></i>')
-  .click(function(event) {
-    var p = prompt('Modify your pod URL (eg. https://diasp.eu)', DiasPlus.getPodURL());
-    DiasPlus.setPodInfo(p);
-    DiasPlus.addOOMPButton();
-  })
-  .prependTo('header');
+  $('<li class="dplus-settings-button" title="DiasPlus Settings"><a><i class="entypo-cog"></i>D+</a></li>')
+    .click(function () {
+      var p = prompt('Modify your pod URL (eg. https://diasp.eu)', DiasPlus.getPodURL());
+      DiasPlus.setPodInfo(p) && DiasPlus.addOompButton();
+    })
+    .appendTo('ul.navbar-right:first');
+};
+
+/**
+ * Add the "Open on my pod" button to the top right navbar.
+ */
+DiasPlus.addOompButton = function () {
+  // Remove the existing button if it already exists.
+  $('.dplus-oomp-button').remove();
 
   // If we are not logged into this pod, it must be a foreign one.
-  if (!('user' in gon) && location.hostname !== DiasPlus.domain ) {
-    var $button = $('<a class="dplus-oomp" target="_self">Open on my pod</a>');
+  if (!('user' in DiasPlus.gon) && location.hostname !== DiasPlus.domain) {
+    var $button = $('<li class="dplus-oomp-button" title="Open on my pod"><a target="_self"><i class="entypo-export"></i></a></li>')
 
     // Is this the first time we're setting the pod URL?
     if ('' === DiasPlus.domain) {
-      $button.click(function() {
+      $button.click(function () {
         var p = prompt('Your pod has not been defined yet!\n\nEnter your pod domain (eg. https://diasp.eu)', DiasPlus.getPodURL());
-        DiasPlus.setPodInfo(p);
-        DiasPlus.addOOMPButton();
+        DiasPlus.setPodInfo(p) && DiasPlus.addOompButton();
       });
     } else {
       var url = DiasPlus.getPodURL();
 
-      if ('post' in gon) {
-        url += '/posts/' + gon.post.guid;
+      if ('post' in DiasPlus.gon) {
+        url += '/posts/' + DiasPlus.gon.post.guid;
       } else {
         url += location.pathname;
       }
 
-      $button.attr('href', url);
+      $('a', $button).attr('href', url);
     }
 
-    $button.prependTo('header');
+    $button.appendTo('ul.navbar-right');
   }
 };
 
 /**
- * Load the JS gon object.
+ * Add the "Liked" and "Commented" links to the stream selection menu.
  */
-DiasPlus.loadJSgon = function () {
-  $('script').each(function() {
-    if ($(this).text().search('window.gon={}') > -1) {
-      eval($(this).text());
-      return;
-    }
-  });
-};
-
-/**
- * Add the extra links to the toolbar.
- */
-DiasPlus.addExtraToolbarLinks = function () {
-  // Add the "Liked" and "Commented" links to the toolbar.
-  var $headerNav = $( '.header-nav' ).append(
-    '\n<span><a href="/liked">Liked</a></span>' +
-    '\n<span><a href="/commented">Commented</a></span>'
+DiasPlus.addExtraMenuLinks = function () {
+  var $streamSelection = $('#stream_selection');
+  $('li:nth-child(2)', $streamSelection).after(
+    '<li><a class="hoverable" href="/liked">Liked</a></li>' +
+    '<li><a class="hoverable" href="/commented">Commented</a></li>'
   );
 
-  // Hightlight the background of the active nav item's page.
-  $headerNav.find( 'span' ).each(function() {
-    var navHref = $( 'a', this ).attr( 'href' );
-    if ( navHref === location.href.substring( location.href.length - navHref.length ) ) {
-      $( this ).addClass( 'dplus-active' );
+  // Highlight the background of the active nav item's page.
+  $streamSelection.find('li').each(function () {
+    var navHref = $('a', this).attr('href');
+    if (navHref === location.href.substring(location.href.length - navHref.length)) {
+      $(this).addClass('selected');
     }
   });
 };
@@ -159,17 +131,17 @@ DiasPlus.addExtraToolbarLinks = function () {
 /**
  * Add button that reverses the order of conversation messages.
  */
-DiasPlus.addMessageSortingButton = function() {
+DiasPlus.addMessageSortingButton = function () {
   if ($('body').hasClass('page-conversations')) {
-    var revMessages = function() {
-      $('<a class="dplus-reverse-messages" title="Reverse message order"><i class="entypo switch"></i></a>')
-      .click(function() {
-        $('#conversation_show .stream').html($('#conversation_show .stream_element').get().reverse());
-      })
-      .prependTo('.control-icons');
+    var revMessages = function () {
+      $('<a class="dplus-reverse-messages" title="Reverse message order"><i class="entypo-switch"></i></a>')
+        .click(function () {
+          $('#conversation-show .stream').html($('#conversation-show .stream-element').get().reverse());
+        })
+        .prependTo('.control-icons');
     };
     revMessages();
-    DiasPlus.Observer.add('#conversation_show', revMessages);
+    DiasPlus.Observer.add('#conversation-show', revMessages);
   }
 };
 
@@ -182,27 +154,30 @@ var md = false;
 DiasPlus.initLongClickTags = function () {
   // MouseDown and MouseUp actions for the post entry field.
   $('#status_message_fake_text')
-  .mousedown(function() {
-    md = Date.now();
-    DiasPlus.makeTag($(this));
-  })
-  .mouseup(function() {
-    md = false;
-  });
+    .mousedown(function () {
+      md = Date.now();
+      DiasPlus.makeTag($(this));
+    })
+    .mouseup(function () {
+      md = false;
+    });
 };
 
 /**
  * Check if the passed character is not a space or new line character.
- * @param  {string}  c The character to check.
- * @return {Boolean}   True if not a space or new line, else False.
+ *
+ * @param {string} c The character to check.
+ *
+ * @return {boolean} True if not a space or new line, else False.
  */
 DiasPlus.isValidChar = function (c) {
-  return ( undefined !== c && ! /\s/.test( c ) );
+  return undefined !== c && !/\s/.test(c);
 };
 
 /**
- * Convert the currently selected word of the passed text area a tag.
- * @param  {jQuery} $textArea The text area to be handled.
+ * Convert the currently selected word of the passed text area to a tag.
+ *
+ * @param {jQuery} $textArea The text area to be handled.
  */
 DiasPlus.makeTag = function ($textArea) {
   try {
@@ -213,7 +188,9 @@ DiasPlus.makeTag = function ($textArea) {
 
     // Mouse button down long enough? Loop with timeouts until yes.
     if (md + 500 > Date.now()) {
-      setTimeout(function() { DiasPlus.makeTag($textArea); }, 50);
+      setTimeout(function () {
+        DiasPlus.makeTag($textArea);
+      }, 50);
     } else if ($textArea instanceof jQuery && $textArea.is('textarea')) {
       // Make sure we have been passed a text area.
       var textAreaText = $textArea.val();
@@ -229,7 +206,7 @@ DiasPlus.makeTag = function ($textArea) {
 
         // Let's handle the tag.
         if (DiasPlus.isValidChar(textAreaText[cPos1])) {
-          if (textAreaText[ cPos1 ] === '#') {
+          if (textAreaText[cPos1] === '#') {
             // Looks like we're removing the tag.
             if (DiasPlus.isValidChar(textAreaText[cPos1 + 1]) && textAreaText[cPos1 + 1] !== '#') {
               $textArea.val(textAreaText.substring(0, cPos1) + textAreaText.substring(cPos1 + 1));
@@ -255,59 +232,50 @@ DiasPlus.makeTag = function ($textArea) {
 
 /**
  * Make a log entry.
+ *
  * @param {string}  logMessage Message to write to the log console.
- * @param {string}  level      Level to log ([l]og,[i]nfo,[w]arning,[e]rror).
+ * @param {string}  logLevel   Level to log ([l]og,[i]nfo,[w]arning,[e]rror).
  * @param {boolean} alsoAlert  Also echo the message in an alert box.
- * @param {object}  exception  If an exception is passed too, add that info.
+ * @param {Error}   e          If an exception is passed too, add that info.
  */
-DiasPlus.doLog = function (logMessage, level, alsoAlert, e) {
+DiasPlus.doLog = function (logMessage, logLevel, alsoAlert, e) {
   // Default to "log" if nothing is provided.
-  level = level || 'l';
+  logLevel = logLevel || 'l';
 
   // Add exception details if available.
   if (e instanceof Error) {
     logMessage += ' (' + e.name + ': ' + e.message + ')';
   }
 
-  switch (level) {
-    case 'l' : console.log(  logMessage); break;
-    case 'i' : console.info( logMessage); break;
-    case 'w' : console.warn( logMessage); break;
-    case 'e' : console.error(logMessage); break;
-  }
-  if (alsoAlert) {
-    alert(logMessage);
-  }
+  logLevel === 'l' && console.log(logMessage);
+  logLevel === 'i' && console.info(logMessage);
+  logLevel === 'w' && console.warn(logMessage);
+  logLevel === 'e' && console.error(logMessage);
+
+  alsoAlert && alert(logMessage);
 };
 
 /**
  * Start the party.
  */
 DiasPlus.init = function () {
-  // Make sure we're on a diaspora* pod.
-  if ($('meta[name="description"]').attr('content') !== 'diaspora*') {
-    return;
-  }
-
   // Add the global CSS rules.
   GM_addStyle(
-    '.header-nav .dplus-active { background-color: rgba(255,255,255,.1); }' +
-    '.dplus-oomp { background: #00de00 !important; padding: 3px 9px; margin-left: 10px; border: 1px solid #006f00; border-radius: 5px; color: #006f00; float: left; cursor: pointer; }' +
-    '.dplus-oomp-settings { float: left; color: #006f00; font-size: 20px; margin: 4px; cursor: pointer; }' +
+    '.dplus-settings-button, .dplus-oomp-button { cursor: pointer; }' +
+    '.dplus-oomp-button { background: #0c0; }' +
+    '.dplus-oomp-button a { color: #fff !important; }' +
     '.page-conversations .control-icons a { cursor: pointer; display: inline-block !important; }' +
-    '.page-conversations .control-icons a i.entypo { font-size: 20px; }'
+    '.page-conversations .control-icons .dplus-reverse-messages i { font-size: 20px; }'
   );
 
   // Load the pod infos from the GM settings.
   DiasPlus.loadPodInfo();
 
-  // Load the gon JS variable.
-  DiasPlus.loadJSgon();
-
   // Load all the features.
+  DiasPlus.addSettingsButton();
   DiasPlus.initLongClickTags();
-  DiasPlus.addExtraToolbarLinks();
-  DiasPlus.addOOMPButton();
+  DiasPlus.addExtraMenuLinks();
+  DiasPlus.addOompButton();
   DiasPlus.addMessageSortingButton();
 };
 
@@ -317,3 +285,33 @@ if (/(?!.*?compatible|.*?webkit)^mozilla|opera/i.test(navigator.userAgent)) { //
 } else {
   window.setTimeout(DiasPlus.init, 0);
 }
+
+/**
+ * The MutationObserver to detect page changes.
+ */
+DiasPlus.Observer = {
+  // The mutation observer objects.
+  observers: [],
+
+  /**
+   * Add an observer to observe for DOM changes.
+   *
+   * @param {string}   queryToObserve Query string of elements to observe.
+   * @param {function} cb             Callback function for the observer.
+   */
+  add: function (queryToObserve, cb) {
+    // Check if we can use the MutationObserver.
+    if ('MutationObserver' in window) {
+      var toObserve = document.querySelector(queryToObserve);
+      if (toObserve) {
+        var mo = new MutationObserver(cb);
+        DiasPlus.Observer.observers.push(mo);
+
+        // Observe child changes.
+        mo.observe(toObserve, {
+          childList: true
+        });
+      }
+    }
+  }
+};

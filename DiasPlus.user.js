@@ -165,16 +165,19 @@ DiasPlus.initLongClickTags = function () {
 
 /**
  * Check if the passed character is not a space or new line character.
- * @param  {string}  c The character to check.
- * @return {Boolean}   True if not a space or new line, else False.
+ *
+ * @param {string} c The character to check.
+ *
+ * @return {boolean} True if not a space or new line, else False.
  */
 DiasPlus.isValidChar = function (c) {
-  return ( undefined !== c && !/\s/.test(c) );
+  return undefined !== c && !/\s/.test(c);
 };
 
 /**
- * Convert the currently selected word of the passed text area a tag.
- * @param  {jQuery} $textArea The text area to be handled.
+ * Convert the currently selected word of the passed text area to a tag.
+ *
+ * @param {jQuery} $textArea The text area to be handled.
  */
 DiasPlus.makeTag = function ($textArea) {
   try {

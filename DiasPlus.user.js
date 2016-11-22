@@ -229,37 +229,27 @@ DiasPlus.makeTag = function ($textArea) {
 
 /**
  * Make a log entry.
+ *
  * @param {string}  logMessage Message to write to the log console.
- * @param {string}  level      Level to log ([l]og,[i]nfo,[w]arning,[e]rror).
+ * @param {string}  logLevel   Level to log ([l]og,[i]nfo,[w]arning,[e]rror).
  * @param {boolean} alsoAlert  Also echo the message in an alert box.
- * @param {object}  exception  If an exception is passed too, add that info.
+ * @param {Error}   e          If an exception is passed too, add that info.
  */
-DiasPlus.doLog = function (logMessage, level, alsoAlert, e) {
+DiasPlus.doLog = function (logMessage, logLevel, alsoAlert, e) {
   // Default to "log" if nothing is provided.
-  level = level || 'l';
+  logLevel = logLevel || 'l';
 
   // Add exception details if available.
   if (e instanceof Error) {
     logMessage += ' (' + e.name + ': ' + e.message + ')';
   }
 
-  switch (level) {
-    case 'l' :
-      console.log(logMessage);
-      break;
-    case 'i' :
-      console.info(logMessage);
-      break;
-    case 'w' :
-      console.warn(logMessage);
-      break;
-    case 'e' :
-      console.error(logMessage);
-      break;
-  }
-  if (alsoAlert) {
-    alert(logMessage);
-  }
+  logLevel === 'l' && console.log(logMessage);
+  logLevel === 'i' && console.info(logMessage);
+  logLevel === 'w' && console.warn(logMessage);
+  logLevel === 'e' && console.error(logMessage);
+
+  alsoAlert && alert(logMessage);
 };
 
 /**

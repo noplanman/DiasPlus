@@ -33,7 +33,7 @@ DiasPlus.getPodURL = function () {
 DiasPlus.Observer = {
 
   // The mutation observer objects.
-  observers : [],
+  observers: [],
 
   /**
    * Add an observer to observe for DOM changes.
@@ -41,7 +41,7 @@ DiasPlus.Observer = {
    * @param {string}   queryToObserve Query string of elements to observe.
    * @param {function} cb             Callback function for the observer.
    */
-  add : function(queryToObserve, cb) {
+  add: function (queryToObserve, cb) {
 
     // Check if we can use the MutationObserver.
     if ('MutationObserver' in window) {
@@ -91,20 +91,20 @@ DiasPlus.addOOMPButton = function () {
 
   // Add settings button.
   var $settingsButton = $('<i class="dplus-oomp-settings entypo cog" title="D+ Settings"></i>')
-  .click(function(event) {
-    var p = prompt('Modify your pod URL (eg. https://diasp.eu)', DiasPlus.getPodURL());
-    DiasPlus.setPodInfo(p);
-    DiasPlus.addOOMPButton();
-  })
-  .prependTo('header');
+    .click(function (event) {
+      var p = prompt('Modify your pod URL (eg. https://diasp.eu)', DiasPlus.getPodURL());
+      DiasPlus.setPodInfo(p);
+      DiasPlus.addOOMPButton();
+    })
+    .prependTo('header');
 
   // If we are not logged into this pod, it must be a foreign one.
-  if (!('user' in gon) && location.hostname !== DiasPlus.domain ) {
+  if (!('user' in gon) && location.hostname !== DiasPlus.domain) {
     var $button = $('<a class="dplus-oomp" target="_self">Open on my pod</a>');
 
     // Is this the first time we're setting the pod URL?
     if ('' === DiasPlus.domain) {
-      $button.click(function() {
+      $button.click(function () {
         var p = prompt('Your pod has not been defined yet!\n\nEnter your pod domain (eg. https://diasp.eu)', DiasPlus.getPodURL());
         DiasPlus.setPodInfo(p);
         DiasPlus.addOOMPButton();
@@ -129,7 +129,7 @@ DiasPlus.addOOMPButton = function () {
  * Load the JS gon object.
  */
 DiasPlus.loadJSgon = function () {
-  $('script').each(function() {
+  $('script').each(function () {
     if ($(this).text().search('window.gon={}') > -1) {
       eval($(this).text());
       return;
@@ -142,16 +142,16 @@ DiasPlus.loadJSgon = function () {
  */
 DiasPlus.addExtraToolbarLinks = function () {
   // Add the "Liked" and "Commented" links to the toolbar.
-  var $headerNav = $( '.header-nav' ).append(
+  var $headerNav = $('.header-nav').append(
     '\n<span><a href="/liked">Liked</a></span>' +
     '\n<span><a href="/commented">Commented</a></span>'
   );
 
   // Hightlight the background of the active nav item's page.
-  $headerNav.find( 'span' ).each(function() {
-    var navHref = $( 'a', this ).attr( 'href' );
-    if ( navHref === location.href.substring( location.href.length - navHref.length ) ) {
-      $( this ).addClass( 'dplus-active' );
+  $headerNav.find('span').each(function () {
+    var navHref = $('a', this).attr('href');
+    if (navHref === location.href.substring(location.href.length - navHref.length)) {
+      $(this).addClass('dplus-active');
     }
   });
 };
@@ -159,14 +159,14 @@ DiasPlus.addExtraToolbarLinks = function () {
 /**
  * Add button that reverses the order of conversation messages.
  */
-DiasPlus.addMessageSortingButton = function() {
+DiasPlus.addMessageSortingButton = function () {
   if ($('body').hasClass('page-conversations')) {
-    var revMessages = function() {
+    var revMessages = function () {
       $('<a class="dplus-reverse-messages" title="Reverse message order"><i class="entypo switch"></i></a>')
-      .click(function() {
-        $('#conversation_show .stream').html($('#conversation_show .stream_element').get().reverse());
-      })
-      .prependTo('.control-icons');
+        .click(function () {
+          $('#conversation_show .stream').html($('#conversation_show .stream_element').get().reverse());
+        })
+        .prependTo('.control-icons');
     };
     revMessages();
     DiasPlus.Observer.add('#conversation_show', revMessages);
@@ -182,13 +182,13 @@ var md = false;
 DiasPlus.initLongClickTags = function () {
   // MouseDown and MouseUp actions for the post entry field.
   $('#status_message_fake_text')
-  .mousedown(function() {
-    md = Date.now();
-    DiasPlus.makeTag($(this));
-  })
-  .mouseup(function() {
-    md = false;
-  });
+    .mousedown(function () {
+      md = Date.now();
+      DiasPlus.makeTag($(this));
+    })
+    .mouseup(function () {
+      md = false;
+    });
 };
 
 /**
@@ -197,7 +197,7 @@ DiasPlus.initLongClickTags = function () {
  * @return {Boolean}   True if not a space or new line, else False.
  */
 DiasPlus.isValidChar = function (c) {
-  return ( undefined !== c && ! /\s/.test( c ) );
+  return ( undefined !== c && !/\s/.test(c) );
 };
 
 /**
@@ -213,7 +213,9 @@ DiasPlus.makeTag = function ($textArea) {
 
     // Mouse button down long enough? Loop with timeouts until yes.
     if (md + 500 > Date.now()) {
-      setTimeout(function() { DiasPlus.makeTag($textArea); }, 50);
+      setTimeout(function () {
+        DiasPlus.makeTag($textArea);
+      }, 50);
     } else if ($textArea instanceof jQuery && $textArea.is('textarea')) {
       // Make sure we have been passed a text area.
       var textAreaText = $textArea.val();
@@ -229,7 +231,7 @@ DiasPlus.makeTag = function ($textArea) {
 
         // Let's handle the tag.
         if (DiasPlus.isValidChar(textAreaText[cPos1])) {
-          if (textAreaText[ cPos1 ] === '#') {
+          if (textAreaText[cPos1] === '#') {
             // Looks like we're removing the tag.
             if (DiasPlus.isValidChar(textAreaText[cPos1 + 1]) && textAreaText[cPos1 + 1] !== '#') {
               $textArea.val(textAreaText.substring(0, cPos1) + textAreaText.substring(cPos1 + 1));
@@ -270,10 +272,18 @@ DiasPlus.doLog = function (logMessage, level, alsoAlert, e) {
   }
 
   switch (level) {
-    case 'l' : console.log(  logMessage); break;
-    case 'i' : console.info( logMessage); break;
-    case 'w' : console.warn( logMessage); break;
-    case 'e' : console.error(logMessage); break;
+    case 'l' :
+      console.log(logMessage);
+      break;
+    case 'i' :
+      console.info(logMessage);
+      break;
+    case 'w' :
+      console.warn(logMessage);
+      break;
+    case 'e' :
+      console.error(logMessage);
+      break;
   }
   if (alsoAlert) {
     alert(logMessage);

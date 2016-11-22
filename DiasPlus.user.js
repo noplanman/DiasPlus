@@ -28,6 +28,7 @@ DiasPlus.domain = '';
 
 /**
  * Get the pod URL (protocol + domain).
+ *
  * @return {string} The pod URL.
  */
 DiasPlus.getPodURL = function () {
@@ -39,51 +40,58 @@ DiasPlus.getPodURL = function () {
  * Get the pod info from the GM settings.
  */
 DiasPlus.loadPodInfo = function () {
-  var podURL = GM_getValue('dplus-pod-url', '');
-  DiasPlus.setPodInfo(podURL);
+  DiasPlus.setPodInfo(GM_getValue('dplus-pod-url', ''));
 };
 
 /**
  * Set the pod info and save it to the DiasPlus object and the GM settings.
+ *
  * @param {string} podURL Pod URL to save.
+ *
+ * @return {boolean}
  */
 DiasPlus.setPodInfo = function (podURL) {
-  DiasPlus.secure = true;
-  DiasPlus.domain = '';
   var info = podURL.split('://');
   if (info.length === 2) {
-    DiasPlus.secure = (info[0] === 'https');
+    DiasPlus.secure = info[0] === 'https';
     DiasPlus.domain = info[1];
+    GM_setValue('dplus-pod-url', DiasPlus.getPodURL());
+
+    return true
   }
-  GM_setValue('dplus-pod-url', DiasPlus.getPodURL());
+
+  return false;
 };
 
 /**
- * Add the "Open on my pod" and settings buttons.
+ * Add the settings button to the top right navbar.
  */
-DiasPlus.addOOMPButton = function () {
-  // Remove the existing button if it already exists.
-  $('.dplus-oomp, .dplus-oomp-settings').remove();
-
+DiasPlus.addSettingsButton = function () {
   // Add settings button.
-  var $settingsButton = $('<i class="dplus-oomp-settings entypo cog" title="D+ Settings"></i>')
-    .click(function (event) {
+  $('<li class="dplus-settings-button" title="DiasPlus Settings"><a><i class="entypo-cog"></i>D+</a></li>')
+    .click(function () {
       var p = prompt('Modify your pod URL (eg. https://diasp.eu)', DiasPlus.getPodURL());
-      DiasPlus.setPodInfo(p);
-      DiasPlus.addOOMPButton();
+      DiasPlus.setPodInfo(p) && DiasPlus.addOompButton();
     })
-    .prependTo('header');
+    .appendTo('ul.navbar-right:first');
+};
+
+/**
+ * Add the "Open on my pod" button to the top right navbar.
+ */
+DiasPlus.addOompButton = function () {
+  // Remove the existing button if it already exists.
+  $('.dplus-oomp-button').remove();
 
   // If we are not logged into this pod, it must be a foreign one.
-    var $button = $('<a class="dplus-oomp" target="_self">Open on my pod</a>');
   if (!('user' in DiasPlus.gon) && location.hostname !== DiasPlus.domain) {
+    var $button = $('<li class="dplus-oomp-button" title="Open on my pod"><a target="_self"><i class="entypo-export"></i></a></li>')
 
     // Is this the first time we're setting the pod URL?
     if ('' === DiasPlus.domain) {
       $button.click(function () {
         var p = prompt('Your pod has not been defined yet!\n\nEnter your pod domain (eg. https://diasp.eu)', DiasPlus.getPodURL());
-        DiasPlus.setPodInfo(p);
-        DiasPlus.addOOMPButton();
+        DiasPlus.setPodInfo(p) && DiasPlus.addOompButton();
       });
     } else {
       var url = DiasPlus.getPodURL();
@@ -94,10 +102,10 @@ DiasPlus.addOOMPButton = function () {
         url += location.pathname;
       }
 
-      $button.attr('href', url);
+      $('a', $button).attr('href', url);
     }
 
-    $button.prependTo('header');
+    $button.appendTo('ul.navbar-right');
   }
 };
 
@@ -260,9 +268,9 @@ DiasPlus.doLog = function (logMessage, level, alsoAlert, e) {
 DiasPlus.init = function () {
   // Add the global CSS rules.
   GM_addStyle(
-    '.header-nav .dplus-active { background-color: rgba(255,255,255,.1); }' +
-    '.dplus-oomp { background: #00de00 !important; padding: 3px 9px; margin-left: 10px; border: 1px solid #006f00; border-radius: 5px; color: #006f00; float: left; cursor: pointer; }' +
-    '.dplus-oomp-settings { float: left; color: #006f00; font-size: 20px; margin: 4px; cursor: pointer; }' +
+    '.dplus-settings-button, .dplus-oomp-button { cursor: pointer; }' +
+    '.dplus-oomp-button { background: #0c0; }' +
+    '.dplus-oomp-button a { color: #fff !important; }' +
     '.page-conversations .control-icons a { cursor: pointer; display: inline-block !important; }' +
     '.page-conversations .control-icons a i.entypo { font-size: 20px; }'
   );
@@ -271,9 +279,10 @@ DiasPlus.init = function () {
   DiasPlus.loadPodInfo();
 
   // Load all the features.
+  DiasPlus.addSettingsButton();
   DiasPlus.initLongClickTags();
   DiasPlus.addExtraToolbarLinks();
-  DiasPlus.addOOMPButton();
+  DiasPlus.addOompButton();
   DiasPlus.addMessageSortingButton();
 };
 

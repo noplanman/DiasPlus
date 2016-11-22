@@ -138,20 +138,20 @@ DiasPlus.loadJSgon = function () {
 };
 
 /**
- * Add the extra links to the toolbar.
+ * Add the "Liked" and "Commented" links to the stream selection menu.
  */
 DiasPlus.addExtraToolbarLinks = function () {
-  // Add the "Liked" and "Commented" links to the toolbar.
-  var $headerNav = $('.header-nav').append(
-    '\n<span><a href="/liked">Liked</a></span>' +
-    '\n<span><a href="/commented">Commented</a></span>'
+  var $streamSelection = $('#stream_selection');
+  $('li:nth-child(2)', $streamSelection).after(
+    '<li><a class="hoverable" href="/liked">Liked</a></li>' +
+    '<li><a class="hoverable" href="/commented">Commented</a></li>'
   );
 
-  // Hightlight the background of the active nav item's page.
-  $headerNav.find('span').each(function () {
+  // Highlight the background of the active nav item's page.
+  $streamSelection.find('li').each(function () {
     var navHref = $('a', this).attr('href');
     if (navHref === location.href.substring(location.href.length - navHref.length)) {
-      $(this).addClass('dplus-active');
+      $(this).addClass('selected');
     }
   });
 };

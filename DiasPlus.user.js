@@ -10,8 +10,8 @@
 // @grant       GM_addStyle
 // @grant       GM_getValue
 // @grant       GM_setValue
-// @require     https://code.jquery.com/jquery-1.11.3.min.js
 // @grant       window
+// @require     https://code.jquery.com/jquery-3.1.1.slim.min.js
 // @homepageURL https://github.com/noplanman/DiasPlus
 // @supportURL  https://github.com/noplanman/DiasPlus/issues
 // ==/UserScript==

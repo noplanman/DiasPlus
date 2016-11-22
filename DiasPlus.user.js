@@ -112,7 +112,7 @@ DiasPlus.addOompButton = function () {
 /**
  * Add the "Liked" and "Commented" links to the stream selection menu.
  */
-DiasPlus.addExtraToolbarLinks = function () {
+DiasPlus.addExtraMenuLinks = function () {
   var $streamSelection = $('#stream_selection');
   $('li:nth-child(2)', $streamSelection).after(
     '<li><a class="hoverable" href="/liked">Liked</a></li>' +
@@ -265,7 +265,7 @@ DiasPlus.init = function () {
     '.dplus-oomp-button { background: #0c0; }' +
     '.dplus-oomp-button a { color: #fff !important; }' +
     '.page-conversations .control-icons a { cursor: pointer; display: inline-block !important; }' +
-    '.page-conversations .control-icons a i.entypo { font-size: 20px; }'
+    '.page-conversations .control-icons .dplus-reverse-messages i { font-size: 20px; }'
   );
 
   // Load the pod infos from the GM settings.
@@ -274,7 +274,7 @@ DiasPlus.init = function () {
   // Load all the features.
   DiasPlus.addSettingsButton();
   DiasPlus.initLongClickTags();
-  DiasPlus.addExtraToolbarLinks();
+  DiasPlus.addExtraMenuLinks();
   DiasPlus.addOompButton();
   DiasPlus.addMessageSortingButton();
 };

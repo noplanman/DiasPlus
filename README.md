@@ -1,14 +1,13 @@
 # DiasPlus
 
-diaspora\* script that adds tweaks to the website.
+diaspora\* userscript that adds tweaks to your pod.
 
 - Author: [Armando Lüscher](https://diasp.eu/people/c2d5d7b0852901324e075404a6b20780)
-- Version: 1.3 ([changelog](https://github.com/noplanman/DiasPlus/blob/master/CHANGELOG.md))
-- Short-Link for sharing: https://j.mp/DiasPlus
+- Version: 2.0.0 ([changelog](https://github.com/noplanman/DiasPlus/blob/master/CHANGELOG.md))
 
 ---
 
-##Installation
+## Installation
 
 DiasPlus can be installed on a **PC**, or a **Mac**.
 Simply choose the plugin that corresponds to your web browser below and download the script, as easy as that!
@@ -25,18 +24,17 @@ Simply choose the plugin that corresponds to your web browser below and download
   - [Get it on GitHub](https://raw.githubusercontent.com/noplanman/DiasPlus/master/DiasPlus.user.js)
 
 3. Set your pod URL
-  - Be sure to set your diaspora\* pod using the new green cog that appears on the top left of the page when you visit any pod ([more info](#open-on-my-pod for more info)).
+  - Be sure to set your diaspora\* pod using the new D+ cog that appears on the top right of the page when you visit any pod ([more info](#open-on-my-pod)).
 
-##Details
+## Details
 
-###Header
+### Header
 
-Adds **Liked** and **Commented** links to the header navigation for easier access.
-The background of the selected link gets coloured.
+Adds **Liked** and **Commented** links to the stream menu on the left for easier access.
 
-![Additional header links](https://github.com/noplanman/DiasPlus/raw/master/assets/header.png)
+![Additional header links](https://github.com/noplanman/DiasPlus/raw/master/assets/stream-menu-links.png)
 
-###Long-Click-Tags
+### Long-Click-Tags
 
 Easily convert certain words to tags in the text entry field when writing a new post.
 If a word is already a tag, convert it back into a normal word.
@@ -44,18 +42,18 @@ Simply move the mouse over a word that should be converted into a tag and hold d
 
 Example when long-clicking the word "Tag": `Make me a Tag.` *becomes* `Make me a #Tag.`
 
-###Open on my pod
+### Open on my pod
 
 When directly viewing a user, post or tag from a different pod, there is no easy way of opening the page on your own pod.
-This feature helps out with that, by adding a button at the top left, needing only 1 click to open it on your pod.
+This feature helps out with that, by adding a button at the top right, needing only 1 click to open it on your pod.
 
-For this feature to work, you will need to set your pod URL first. The input field pops up when you first click the button, or alternatively you can select the green cog that appears next to it.
+For this feature to work, you will need to set your pod URL first. The input field pops up when you first click the button, or alternatively you can select the D+ cog that appears next to it.
 
-NOTE: On your own pod, you will not see the button, only the cog to change the saved pod URL.
+NOTE: On your own pod, you will not see the button, only the D+ cog to change the saved pod URL.
 
 ![Open on my pod](https://github.com/noplanman/DiasPlus/raw/master/assets/open-on-my-pod.png)
 
-###Reverse order of conversation messages
+### Reverse order of conversation messages
 
 When you're on the conversations page, you can reverse the order of the messages, to have the newest ones on top. This helps so you don't have to scroll to the bottom all the time.
 

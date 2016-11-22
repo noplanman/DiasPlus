@@ -3,8 +3,8 @@
 // @namespace   diasplus
 // @description Userscript that adds tweaks to diaspora*.
 // @include     *
-// @version     1.3
-// @copyright   2015 Armando Lüscher
+// @version     2.0.0
+// @copyright   2016 Armando Lüscher
 // @author      Armando Lüscher
 // @oujs:author noplanman
 // @grant       GM_addStyle

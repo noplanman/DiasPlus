@@ -11,11 +11,18 @@
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @require     https://code.jquery.com/jquery-1.11.3.min.js
+// @grant       window
 // @homepageURL https://github.com/noplanman/DiasPlus
 // @supportURL  https://github.com/noplanman/DiasPlus/issues
 // ==/UserScript==
 
+// Make sure we're on a diaspora* pod.
+if (typeof unsafeWindow.Diaspora === 'undefined') {
+  throw 'Not a diaspora* pod, move along...';
+}
+
 var DiasPlus = {};
+DiasPlus.gon = unsafeWindow.gon;
 DiasPlus.secure = true;
 DiasPlus.domain = '';
 
@@ -68,8 +75,8 @@ DiasPlus.addOOMPButton = function () {
     .prependTo('header');
 
   // If we are not logged into this pod, it must be a foreign one.
-  if (!('user' in gon) && location.hostname !== DiasPlus.domain) {
     var $button = $('<a class="dplus-oomp" target="_self">Open on my pod</a>');
+  if (!('user' in DiasPlus.gon) && location.hostname !== DiasPlus.domain) {
 
     // Is this the first time we're setting the pod URL?
     if ('' === DiasPlus.domain) {
@@ -81,8 +88,8 @@ DiasPlus.addOOMPButton = function () {
     } else {
       var url = DiasPlus.getPodURL();
 
-      if ('post' in gon) {
-        url += '/posts/' + gon.post.guid;
+      if ('post' in DiasPlus.gon) {
+        url += '/posts/' + DiasPlus.gon.post.guid;
       } else {
         url += location.pathname;
       }
@@ -92,18 +99,6 @@ DiasPlus.addOOMPButton = function () {
 
     $button.prependTo('header');
   }
-};
-
-/**
- * Load the JS gon object.
- */
-DiasPlus.loadJSgon = function () {
-  $('script').each(function () {
-    if ($(this).text().search('window.gon={}') > -1) {
-      eval($(this).text());
-      return;
-    }
-  });
 };
 
 /**
@@ -263,11 +258,6 @@ DiasPlus.doLog = function (logMessage, level, alsoAlert, e) {
  * Start the party.
  */
 DiasPlus.init = function () {
-  // Make sure we're on a diaspora* pod.
-  if ($('meta[name="description"]').attr('content') !== 'diaspora*') {
-    return;
-  }
-
   // Add the global CSS rules.
   GM_addStyle(
     '.header-nav .dplus-active { background-color: rgba(255,255,255,.1); }' +
@@ -279,9 +269,6 @@ DiasPlus.init = function () {
 
   // Load the pod infos from the GM settings.
   DiasPlus.loadPodInfo();
-
-  // Load the gon JS variable.
-  DiasPlus.loadJSgon();
 
   // Load all the features.
   DiasPlus.initLongClickTags();
